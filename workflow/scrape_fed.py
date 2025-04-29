@@ -19,7 +19,7 @@ for meta in tqdm(metas, desc="Downloading speeches", colour="green"):
             paragraphs = [p.get_text() for p in soup.find_all("p")]
             content = "\n\n".join(paragraphs)
             # * append to meta only if the content is available
-            with open("data/fed_speeches_meta.jsonl", "w") as file:
+            with open("data/fed_speeches_meta.jsonl", "a") as file:
                 file.write(json.dumps(meta) + "\n")
             with open("data/fed_speeches_body.jsonl", "a") as file:
                 file.write(json.dumps({"content": content}) + "\n")

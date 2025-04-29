@@ -23,14 +23,23 @@ prompt = """Determine whether the central bank statement reflects a hawkish or d
 with open("data/fed_speeches_body.jsonl", "r") as file:
     speeches = [loads(line).get("content") for line in file]
 
-sentiments = []
-for speech in tqdm(speeches):
-    try:
-        sentiment = structured_extract_from_longtext(prompt=prompt, text=speech, structure=FedSpeech)
-        sentiments.append(sentiment)
-    except Exception as e:
-        print(f"Error processing speech: {e}")
-        sentiments.append([])
+with open("data/fed_speeches_meta.jsonl", "r") as file:
+    dates = [loads(line).get("d") for line in file]
 
-with open(snakemake.output[0], "w") as file:
-    file.write(dumps(sentiments, indent=4))
+with open(snakemake.output[0], "a") as file:
+    file.truncate(0)
+    for speech, date in tqdm(zip(speeches, dates), desc="Ollama sentiment", colour="yellow", total=len(speeches)):
+        try:
+            sentiment = structured_extract_from_longtext(prompt=prompt, text=speech, structure=FedSpeech)
+            speech_dict: dict = {
+                "date": date,
+                "sentiment": sentiment
+            }
+            file.write(dumps(speech_dict) + "\n")
+
+        except Exception as e:
+            print(f"Error processing speech: {e}")
+            file.write(
+                dumps({"date": date, "sentiment": None}) + "\n"
+            )
+

@@ -12,7 +12,7 @@ model_name = config["model"].replace(":", "_").lower()
 rule all:
     input:
         "data/fed_speeches_meta.jsonl",
-        f"data/fed_speeches_sentiment_{model_name}.json"
+        f"data/fed_speeches_sentiment_{model_name}.jsonl"
 
 rule scrape_fed:
     output:
@@ -25,6 +25,6 @@ rule ai_sentiment:
     input:
         body_file = "data/fed_speeches_body.jsonl"
     output:
-        f"data/fed_speeches_sentiment_{model_name}.json"
+        f"data/fed_speeches_sentiment_{model_name}.jsonl"
     script:
         "llm_sentiment.py"
